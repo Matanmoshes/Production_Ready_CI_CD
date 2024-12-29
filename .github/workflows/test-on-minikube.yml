@@ -1,0 +1,102 @@
+name: Test_App_On_Minikube
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]     # Matches the name of your existing CI pipeline
+    types:
+      - completed
+
+jobs:
+  test-on-minikube:
+    runs-on: ubuntu-latest
+    env:
+      # Ensure your OPENWEATHER_API_KEY is available to this job. 
+      # Store it as a GitHub secret, for example 'OPENWEATHER_API_KEY'.
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          driver: docker
+          memory: 4096
+          cpus: 2
+
+      - name: Enable Minikube Ingress
+        run: minikube addons enable ingress
+
+      - name: Install kubectl and helm
+        uses: yokawasa/action-setup-kube-tools@v0.11.2
+        with:
+          setup-tools: |
+            kubectl
+            helm
+          kubectl: '1.25.0'
+          helm: '3.11.1'
+
+      - name: Wait for Ingress Controller
+        run: |
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=300s
+
+          # If there's an admission job for ingress-nginx, wait for it as well
+          if kubectl get job -n ingress-nginx | grep ingress-nginx-admission; then
+            for job in $(kubectl get jobs -n ingress-nginx -o jsonpath='{.items[*].metadata.name}' | grep admission); do
+              kubectl wait --for=condition=complete job/$job -n ingress-nginx --timeout=300s
+            done
+          fi
+
+          sleep 20
+
+      - name: Install/Upgrade Weather App via Helm
+        run: |
+          # Create a dedicated namespace (optional)
+          kubectl create namespace weather-app || true
+
+          helm upgrade --install weather-app ./helm/weather-app \
+            --namespace weather-app \
+            --set image.repository=matanm66/weather-app \
+            --set image.tag=latest \
+            --set environment.OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY} \
+            --set ingress.enabled=false  # or true if you want to test Ingress
+
+      - name: Wait for Weather App to be Ready
+        run: |
+          # The label "app: <fullname>" is set by our chart.
+          # Our chart's "fullname" is typically "weather-app-<release>", i.e. "weather-app-weather-app"
+          # But let's wait for all pods in the namespace to be ready
+          kubectl wait pods \
+            --all \
+            --for=condition=Ready \
+            --namespace weather-app \
+            --timeout=300s
+
+      - name: Get pods and services
+        run: |
+          kubectl get pods -n weather-app
+          kubectl get svc -n weather-app
+
+      - name: Port-forward Service
+        run: kubectl port-forward -n weather-app svc/weather-app-weather-app 5000:80 &
+        # Explanation:
+        #   <release name> = weather-app
+        #   <chart name> = weather-app
+        #   'fullname' => weather-app-weather-app
+
+      - name: Sleep
+        run: sleep 10
+
+      - name: Test /healthcheck
+        run: curl -v -f http://localhost:5000/healthcheck
+
+      - name: Sleep
+        run: sleep 10
+
+      - name: Test Root (GET /)
+        # This won't return weather data unless you do a POST with a 'city' form, but let's at least confirm 200
+        run: curl -v -f http://localhost:5000/
