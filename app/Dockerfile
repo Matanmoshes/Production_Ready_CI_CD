@@ -6,14 +6,11 @@ WORKDIR /app
 # Copy the app directory contents to the working directory in the container
 COPY ./app /app
 
-# Copy the requirements.txt file to the working directory in the container
-COPY requirements.txt /app
-
 # Upgrade pip to the latest version
 RUN pip install --upgrade pip
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Expose the port that the Flask app will run on
 EXPOSE 5000
