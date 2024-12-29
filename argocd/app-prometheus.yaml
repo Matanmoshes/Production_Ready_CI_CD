@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-prometheus-stack
+    targetRevision: 51.2.0  # pinned version
+    helm:
+      releaseName: monitoring-stack
+      values: |
+        grafana:
+          adminPassword: "admin123"
+          service:
+            type: LoadBalancer
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: weather-app
+  namespace: argocd
+spec:
+  destination:
+    namespace: weather-app
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: 'https://github.com/Matanmoshes/Production_Ready_CI_CD.git'
+    targetRevision: main
+    path: helm/weather-app
+    helm:
+      valueFiles:
+        - values.yaml
+      # Optionally override the Docker image/tag or any other values.
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

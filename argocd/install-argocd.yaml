@@ -1,0 +1,10 @@
+# Minimal ArgoCD install (official YAML).
+# For versioning stability, you could pull from a pinned URL:
+# https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.3/manifests/install.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+---
+# Then the rest of the standard ArgoCD install resources. For brevity, we only show partial.
+# In production, you'd apply the full official manifest or use the Argo Helm chart.

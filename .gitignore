@@ -1,11 +1,41 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py
+*$py.class
 
 # Ignore virtual environments
 .venv/
 venv/
 
+# Ignore system files
 .DS_Store
 Thumbs.db
+
+# Ignore local configuration and secrets
+app/DOCKER_VARS
+
+# Ignore Helm generated files
+helm/weather-app/charts/
+helm/weather-app/templates/.helmignore
+helm/weather-app/templates/*.tgz
+
+# Ignore Terraform state and sensitive files
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/.terraform/
+infra/.terraform.lock.hcl
+
+# Ignore ArgoCD logs or temporary files
+argocd/*.log
+
+# Ignore test coverage reports
+coverage/
+*.cover
+*.coverage
+
+# Ignore generated assets
+staticfiles/
+*.log
+
+# Ignore Kubernetes config files (if dynamically generated)
+infra/kubeconfig.*
