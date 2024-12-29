@@ -38,4 +38,4 @@ staticfiles/
 *.log
 
 # Ignore Kubernetes config files (if dynamically generated)
-infra/kubeconfig.*
+
