@@ -32,6 +32,9 @@ mock_weather_data = {
 
 @patch('app.requests.get')
 def test_index_get(mock_get, client):
+    # Mock the API response for GET requests
+    mock_get.return_value.json.return_value = mock_weather_data
+
     # Test the GET request
     response = client.get('/')
     assert response.status_code == 200
@@ -39,7 +42,7 @@ def test_index_get(mock_get, client):
 
 @patch('app.requests.get')
 def test_index_post(mock_get, client):
-    # Mock the API response
+    # Mock the API response for POST requests
     mock_get.return_value.json.return_value = mock_weather_data
 
     # Test the POST request with a sample city
@@ -51,7 +54,7 @@ def test_index_post(mock_get, client):
     assert b'15' in response.data  # Temp in Celsius
     
     # Check that the local time is correctly calculated
-    assert b'Local Time' in response.data  # Capitalized 'Time' to match the actual content
+    assert b'Local Time' in response.data
 
 def test_api_key():
     # Ensure the API key is loaded from the environment
