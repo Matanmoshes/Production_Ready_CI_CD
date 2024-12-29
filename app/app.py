@@ -20,13 +20,16 @@ ERROR_COUNT = metrics.counter(
     labels={'endpoint': lambda: request.endpoint, 'status': lambda: getattr(request, 'status_code', 200)}
 )
 
+
 # Load API key from environment variables for better security
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
+
 @app.route('/healthcheck', methods=['GET'])
 def healthcheck():
     return jsonify({"status": "OK"}), 200
+
 
 @app.route('/', methods=['GET', 'POST'])
 @REQUEST_COUNT
