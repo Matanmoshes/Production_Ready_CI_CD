@@ -1,0 +1,13 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - software-properties-common
+  - git
+
+runcmd:
+  - add-apt-repository --yes --update ppa:ansible/ansible
+  - apt-get install -y ansible
+  - ansible --version
+  - git clone https://github.com/Matanmoshes/Production_Ready_CI_CD.git /home/ubuntu/k8s-ansible
+  - chown -R ubuntu:ubuntu /home/ubuntu/k8s-ansible

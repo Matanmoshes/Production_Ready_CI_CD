@@ -1,12 +1,9 @@
-########################################################
-# Terraform S3 Backend & DynamoDB Lock
-########################################################
 terraform {
   backend "s3" {
-    bucket         = "my-terraform-state-bucket-v2-dfgfd"    # CHANGE to your S3 bucket name
-    key            = "weatherapp-eks/terraform.tfstate"
-    region         = "us-east-1"                    # CHANGE to your region
-    dynamodb_table = "my-terraform-lock-table"      # CHANGE to your DynamoDB table name
+    bucket         = "production-env-state-v3-jsdhfjs"       
+    key            = "terraform/state.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock-table"  
     encrypt        = true
   }
 }

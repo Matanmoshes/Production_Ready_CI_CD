@@ -1,21 +1,19 @@
-output "cluster_id" {
-  description = "EKS Cluster name"
-  value       = module.eks.cluster_id
+output "ansible_control_public_ip" {
+  value       = aws_instance.ansible_control.public_ip
+  description = "Public IP of the Ansible control instance"
 }
 
-output "cluster_endpoint" {
-  description = "EKS API Endpoint"
-  value       = module.eks.cluster_endpoint
+output "alb_dns_name" {
+  value       = aws_lb.http_alb.dns_name
+  description = "DNS name of the Application Load Balancer"
 }
 
-output "cluster_certificate_authority_data" {
-  description = "Cluster CA data"
-  value       = module.eks.cluster_certificate_authority_data
-  sensitive   = true
+output "control_plane_private_ip" {
+  value       = aws_instance.control_plane.private_ip
+  description = "Private IP of the K8s control plane"
 }
 
-output "kubeconfig" {
-  description = "Kubeconfig from template"
-  value       = local.kubeconfig_content
-  sensitive   = true
+output "worker_nodes_private_ips" {
+  value       = [for w in aws_instance.workers : w.private_ip]
+  description = "Private IPs of the worker nodes"
 }

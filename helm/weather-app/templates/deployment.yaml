@@ -32,13 +32,15 @@ spec:
             - name: OPENWEATHER_API_KEY
               value: "{{ .Values.environment.OPENWEATHER_API_KEY }}"
 
-          # Optional liveness/readiness probes
+          # Liveness Probe
           livenessProbe:
             httpGet:
               path: /healthcheck
               port: http
             initialDelaySeconds: 15
             periodSeconds: 20
+
+          # Readiness Probe
           readinessProbe:
             httpGet:
               path: /healthcheck
